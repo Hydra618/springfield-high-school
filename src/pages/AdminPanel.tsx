@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Upload, Edit, Trash2, Plus, Eye, Save, X } from 'lucide-react';
@@ -59,7 +58,14 @@ const AdminPanel = () => {
         .order('event_date', { ascending: false });
       
       if (error) throw error;
-      if (data) setGalleryItems(data);
+      if (data) {
+        // Type assertion to ensure proper union types
+        const typedData = data.map(item => ({
+          ...item,
+          category: item.category as 'events' | 'academics' | 'sports' | 'cultural'
+        }));
+        setGalleryItems(typedData);
+      }
     } catch (error) {
       console.error('Error fetching gallery items:', error);
     }
@@ -73,7 +79,14 @@ const AdminPanel = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      if (data) setInquiries(data);
+      if (data) {
+        // Type assertion to ensure proper union types
+        const typedData = data.map(item => ({
+          ...item,
+          status: item.status as 'new' | 'contacted' | 'resolved'
+        }));
+        setInquiries(typedData);
+      }
     } catch (error) {
       console.error('Error fetching inquiries:', error);
     }

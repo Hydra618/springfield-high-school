@@ -34,7 +34,12 @@ const Home = () => {
         setAnnouncements(announcementsResponse.data);
       }
       if (galleryResponse.data) {
-        setGalleryItems(galleryResponse.data);
+        // Type assertion to ensure proper union types
+        const typedData = galleryResponse.data.map(item => ({
+          ...item,
+          category: item.category as 'events' | 'academics' | 'sports' | 'cultural'
+        }));
+        setGalleryItems(typedData);
       }
     } catch (error) {
       console.error('Error fetching data:', error);

@@ -34,7 +34,12 @@ const Gallery = () => {
       .order('event_date', { ascending: false });
     
     if (data && !error) {
-      setGalleryItems(data);
+      // Type assertion to ensure proper union types
+      const typedData = data.map(item => ({
+        ...item,
+        category: item.category as 'events' | 'academics' | 'sports' | 'cultural'
+      }));
+      setGalleryItems(typedData);
     }
   };
 
