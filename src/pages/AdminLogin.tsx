@@ -113,15 +113,6 @@ const AdminLogin = () => {
               {isLoading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
-
-          {/* Demo Credentials */}
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Demo Credentials:</h3>
-            <p className="text-sm text-gray-600">
-              Username: sfhs@admin<br />
-              Password: ahmedkhan
-            </p>
-          </div>
         </div>
       </div>
     </div>
