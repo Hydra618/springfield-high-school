@@ -38,35 +38,44 @@ const AdminPanel = () => {
   };
 
   const fetchAnnouncements = async () => {
-    const { data, error } = await supabase
-      .from('announcements')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (data && !error) {
-      setAnnouncements(data);
+    try {
+      const { data, error } = await supabase
+        .from('announcements')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      if (data) setAnnouncements(data);
+    } catch (error) {
+      console.error('Error fetching announcements:', error);
     }
   };
 
   const fetchGalleryItems = async () => {
-    const { data, error } = await supabase
-      .from('gallery_items')
-      .select('*')
-      .order('event_date', { ascending: false });
-    
-    if (data && !error) {
-      setGalleryItems(data);
+    try {
+      const { data, error } = await supabase
+        .from('gallery_items')
+        .select('*')
+        .order('event_date', { ascending: false });
+      
+      if (error) throw error;
+      if (data) setGalleryItems(data);
+    } catch (error) {
+      console.error('Error fetching gallery items:', error);
     }
   };
 
   const fetchInquiries = async () => {
-    const { data, error } = await supabase
-      .from('contact_inquiries')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (data && !error) {
-      setInquiries(data);
+    try {
+      const { data, error } = await supabase
+        .from('contact_inquiries')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      if (data) setInquiries(data);
+    } catch (error) {
+      console.error('Error fetching inquiries:', error);
     }
   };
 
@@ -96,8 +105,8 @@ const AdminPanel = () => {
         const { error } = await supabase
           .from('announcements')
           .insert([{
-            title: announcementData.title,
-            content: announcementData.content,
+            title: announcementData.title!,
+            content: announcementData.content!,
             is_active: announcementData.is_active ?? true
           }]);
 
@@ -108,6 +117,7 @@ const AdminPanel = () => {
       setEditingItem(null);
       fetchAnnouncements();
     } catch (error) {
+      console.error('Error saving announcement:', error);
       toast({
         title: "Error",
         description: "Failed to save announcement",
@@ -129,6 +139,7 @@ const AdminPanel = () => {
       toast({ title: "Announcement deleted successfully!" });
       fetchAnnouncements();
     } catch (error) {
+      console.error('Error deleting announcement:', error);
       toast({
         title: "Error",
         description: "Failed to delete announcement",
@@ -171,11 +182,11 @@ const AdminPanel = () => {
         const { error } = await supabase
           .from('gallery_items')
           .insert([{
-            title: galleryData.title,
+            title: galleryData.title!,
             description: galleryData.description,
-            image_url: imageUrl,
-            event_date: galleryData.event_date,
-            category: galleryData.category
+            image_url: imageUrl!,
+            event_date: galleryData.event_date!,
+            category: galleryData.category!
           }]);
 
         if (error) throw error;
@@ -185,6 +196,7 @@ const AdminPanel = () => {
       setEditingItem(null);
       fetchGalleryItems();
     } catch (error) {
+      console.error('Error saving gallery item:', error);
       toast({
         title: "Error",
         description: "Failed to save gallery item",
@@ -206,6 +218,7 @@ const AdminPanel = () => {
       toast({ title: "Gallery item deleted successfully!" });
       fetchGalleryItems();
     } catch (error) {
+      console.error('Error deleting gallery item:', error);
       toast({
         title: "Error",
         description: "Failed to delete gallery item",
