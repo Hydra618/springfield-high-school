@@ -79,7 +79,7 @@ const About = () => {
                     innovative teaching methods and personalized attention."
                   </blockquote>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900 text-lg">Dr. Sarah Johnson</p>
+                    <p className="font-semibold text-gray-900 text-lg">Ahmed Khan</p>
                     <p className="text-blue-600">Principal, Springfield High School</p>
                   </div>
                 </div>
