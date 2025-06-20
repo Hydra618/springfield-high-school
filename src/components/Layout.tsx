@@ -52,13 +52,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="bg-white p-2 rounded-full">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-gold-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">SH</span>
-                  </div>
+                  <img 
+                    src="/lovable-uploads/2d487b6c-e2cb-4b1b-ac0f-4a047cf5ea17.png" 
+                    alt="Springfield High School Logo" 
+                    className="w-12 h-12 object-contain"
+                  />
                 </div>
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold">Springfield High School</h1>
-                  <p className="text-blue-200 text-sm md:text-base">Excellence in Education Since 2003</p>
+                  <p className="text-blue-200 text-sm md:text-base">A 21st Century Skilled School</p>
                 </div>
               </div>
 
@@ -108,7 +110,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div>
               <h3 className="text-xl font-bold mb-4 text-yellow-400">Springfield High School</h3>
               <p className="text-gray-300 mb-4">
-                Committed to providing quality education and nurturing young minds for a brighter future.
+                A 21st century skilled school committed to providing quality education and nurturing young minds for a brighter future.
               </p>
               <div className="flex space-x-4">
                 <a href="tel:9849161512" className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors">
