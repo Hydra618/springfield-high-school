@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, Calendar, Tag } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { getImageUrl } from '@/utils/imageUpload';
 import type { GalleryItem } from '@/types/school';
 
 const Gallery = () => {
@@ -125,9 +125,13 @@ const Gallery = () => {
                 >
                   <div className="aspect-square overflow-hidden">
                     <img
-                      src={item.image_url}
+                      src={getImageUrl(item.image_url)}
                       alt={item.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/placeholder.svg';
+                      }}
                     />
                   </div>
                   
@@ -167,9 +171,13 @@ const Gallery = () => {
           >
             <div className="relative">
               <img
-                src={selectedImage.image_url}
+                src={getImageUrl(selectedImage.image_url)}
                 alt={selectedImage.title}
                 className="w-full h-auto max-h-96 object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/placeholder.svg';
+                }}
               />
               <button
                 onClick={() => setSelectedImage(null)}

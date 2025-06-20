@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Phone, Mail, MapPin, Star, Users, Trophy, GraduationCap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { getImageUrl } from '@/utils/imageUpload';
 import type { Announcement, GalleryItem } from '@/types/school';
 
 const Home = () => {
@@ -190,9 +190,13 @@ const Home = () => {
             <div className="relative max-w-4xl mx-auto">
               <div className="relative h-96 rounded-lg overflow-hidden shadow-xl">
                 <img
-                  src={galleryItems[currentSlide]?.image_url}
+                  src={getImageUrl(galleryItems[currentSlide]?.image_url)}
                   alt={galleryItems[currentSlide]?.title}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/placeholder.svg';
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white">

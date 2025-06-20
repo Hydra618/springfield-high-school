@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { LogOut, Upload, Edit, Trash2, Plus, Eye, Save, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { handleLocalImageUpload, getImageUrl } from '@/utils/imageUpload';
 import type { Announcement, GalleryItem, ContactInquiry } from '@/types/school';
 
 const AdminPanel = () => {
@@ -161,18 +162,13 @@ const AdminPanel = () => {
     }
   };
 
-  const handleImageUpload = async (file: File): Promise<string> => {
-    // This is a placeholder for image upload functionality
-    // In a real implementation, you would upload to Supabase Storage or another service
-    return URL.createObjectURL(file);
-  };
-
   const handleSaveGalleryItem = async (galleryData: Partial<GalleryItem>, file?: File) => {
     try {
       let imageUrl = galleryData.image_url;
       
       if (file) {
-        imageUrl = await handleImageUpload(file);
+        // Use local image upload instead of Supabase
+        imageUrl = await handleLocalImageUpload(file);
       }
 
       if (editingItem && editingItem.id) {
@@ -476,7 +472,7 @@ const AnnouncementsTab = ({ announcements, onEdit, onDelete, onSave, editingItem
   );
 };
 
-// Gallery Tab Component
+// Gallery Tab Component with updated image handling
 const GalleryTab = ({ galleryItems, onEdit, onDelete, onSave, editingItem, onCancelEdit }: any) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -591,6 +587,11 @@ const GalleryTab = ({ galleryItems, onEdit, onDelete, onSave, editingItem, onCan
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 required={!editingItem.id}
               />
+              {selectedFile && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-600">Selected: {selectedFile.name}</p>
+                </div>
+              )}
             </div>
             
             <div className="flex space-x-3">
@@ -620,9 +621,13 @@ const GalleryTab = ({ galleryItems, onEdit, onDelete, onSave, editingItem, onCan
           <div key={item.id} className="bg-white rounded-lg shadow overflow-hidden">
             <div className="aspect-square overflow-hidden">
               <img
-                src={item.image_url}
+                src={getImageUrl(item.image_url)}
                 alt={item.title}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/placeholder.svg';
+                }}
               />
             </div>
             <div className="p-4">
