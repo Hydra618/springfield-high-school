@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Phone, Mail, MapPin, Star, Users, Trophy, GraduationCap, Laptop, BookOpen, Users2, Zap, Brain } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Phone, Mail, MapPin, Star, Users, Trophy, GraduationCap, Laptop, BookOpen, Users2, Zap, Brain, MessageCircle, Gamepad2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { getImageUrl } from '@/utils/imageUpload';
+import { getImageUrl, getSSCResultImages } from '@/utils/imageUpload';
 import type { Announcement, GalleryItem } from '@/types/school';
 
 const Home = () => {
@@ -34,13 +34,26 @@ const Home = () => {
       if (announcementsResponse.data) {
         setAnnouncements(announcementsResponse.data);
       }
-      if (galleryResponse.data) {
-        const typedData = galleryResponse.data.map(item => ({
-          ...item,
-          category: item.category as 'events' | 'academics' | 'sports' | 'cultural'
-        }));
-        setGalleryItems(typedData);
-      }
+      
+      // Combine database gallery items with SSC results
+      const sscResults = getSSCResultImages().map(img => ({
+        id: img.filename,
+        title: img.title,
+        description: img.description,
+        image_url: img.path,
+        event_date: img.event_date,
+        created_at: img.event_date,
+        category: img.category as 'ssc-results'
+      }));
+      
+      const dbItems = galleryResponse.data ? galleryResponse.data.map(item => ({
+        ...item,
+        category: item.category as 'events' | 'academics' | 'sports' | 'cultural' | 'ssc-results'
+      })) : [];
+      
+      // Prioritize SSC results by putting them first
+      const combinedItems = [...sscResults, ...dbItems].slice(0, 6);
+      setGalleryItems(combinedItems);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -108,6 +121,34 @@ const Home = () => {
         </div>
       </section>
 
+      {/* SSC Results Highlight Section */}
+      <section className="py-12 bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-500 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 animate-pulse"></div>
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <div className="animate-fade-in">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 flex items-center justify-center space-x-4">
+              <Trophy className="h-10 w-10 animate-bounce" />
+              <span>SSC 2024 & 2025 Excellence</span>
+              <Trophy className="h-10 w-10 animate-bounce" />
+            </h2>
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 hover:scale-105 transition-all duration-300">
+                <h3 className="text-2xl font-bold mb-3">SSC 2024 Results</h3>
+                <p className="text-lg mb-2">🏆 Top Score: 9.7 GPA</p>
+                <p className="text-lg mb-2">📊 Pass Rate: 91.6%</p>
+                <p className="text-lg">👥 58.3% scored 9+ GPA</p>
+              </div>
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 hover:scale-105 transition-all duration-300">
+                <h3 className="text-2xl font-bold mb-3">SSC 2025 Results</h3>
+                <p className="text-lg mb-2">🎯 100% Pass Rate</p>
+                <p className="text-lg mb-2">🏆 Top Scorers: 580 & 569</p>
+                <p className="text-lg">⭐ 9 students scored 500+</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 21st Century Features Section */}
       <section className="py-16 bg-gradient-to-r from-blue-50 to-indigo-50">
         <div className="container mx-auto px-4">
@@ -136,20 +177,20 @@ const Home = () => {
               <p className="text-gray-600 text-center">Personalized learning paths with artificial intelligence support</p>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-l-4 border-red-500 animate-fade-in delay-200 hover:scale-105 group">
-              <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-red-200 transition-colors duration-300">
-                <Zap className="h-8 w-8 text-red-600 group-hover:scale-110 transition-transform duration-300" />
+            <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-l-4 border-green-500 animate-fade-in delay-200 hover:scale-105 group">
+              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors duration-300">
+                <MessageCircle className="h-8 w-8 text-green-600 group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">STEM Labs</h3>
-              <p className="text-gray-600 text-center">State-of-the-art science, technology, engineering, and math laboratories</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">English Speaking Skills</h3>
+              <p className="text-gray-600 text-center">Comprehensive English communication training and fluency development programs</p>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-l-4 border-teal-500 animate-fade-in delay-300 hover:scale-105 group">
-              <div className="bg-teal-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-teal-200 transition-colors duration-300">
-                <BookOpen className="h-8 w-8 text-teal-600 group-hover:scale-110 transition-transform duration-300" />
+            <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-l-4 border-red-500 animate-fade-in delay-300 hover:scale-105 group">
+              <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-red-200 transition-colors duration-300">
+                <Gamepad2 className="h-8 w-8 text-red-600 group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">Digital Library</h3>
-              <p className="text-gray-600 text-center">Access to thousands of e-books, journals, and online resources</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">Educational Games</h3>
+              <p className="text-gray-600 text-center">Interactive learning through educational games and gamified curriculum</p>
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-l-4 border-pink-500 animate-fade-in delay-400 hover:scale-105 group">

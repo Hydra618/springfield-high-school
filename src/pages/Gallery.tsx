@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, Calendar, Tag, Trophy, GraduationCap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { getImageUrl } from '@/utils/imageUpload';
+import { getImageUrl, getSSCResultImages } from '@/utils/imageUpload';
 import type { GalleryItem } from '@/types/school';
 
 const Gallery = () => {
@@ -35,13 +34,35 @@ const Gallery = () => {
       .select('*')
       .order('event_date', { ascending: false });
     
-    if (data && !error) {
-      const typedData = data.map(item => ({
-        ...item,
-        category: item.category as 'events' | 'academics' | 'sports' | 'cultural' | 'ssc-results'
-      }));
-      setGalleryItems(typedData);
-    }
+    // Get SSC result images
+    const sscResults = getSSCResultImages().map(img => ({
+      id: img.filename,
+      title: img.title,
+      description: img.description,
+      image_url: img.path,
+      event_date: img.event_date,
+      created_at: img.event_date,
+      category: img.category as 'ssc-results'
+    }));
+    
+    const dbItems = data ? data.map(item => ({
+      ...item,
+      category: item.category as 'events' | 'academics' | 'sports' | 'cultural' | 'ssc-results'
+    })) : [];
+    
+    // Prioritize SSC results, especially 2024
+    const sortedItems = [...sscResults, ...dbItems].sort((a, b) => {
+      // SSC 2024 first
+      if (a.title.includes('2024') && !b.title.includes('2024')) return -1;
+      if (!a.title.includes('2024') && b.title.includes('2024')) return 1;
+      // Then SSC 2025
+      if (a.category === 'ssc-results' && b.category !== 'ssc-results') return -1;
+      if (a.category !== 'ssc-results' && b.category === 'ssc-results') return 1;
+      // Then by date
+      return new Date(b.event_date).getTime() - new Date(a.event_date).getTime();
+    });
+    
+    setGalleryItems(sortedItems);
   };
 
   const filterItems = () => {
@@ -67,6 +88,10 @@ const Gallery = () => {
            item.title.toLowerCase().includes('board result');
   };
 
+  const isSSC2024 = (item: GalleryItem) => {
+    return item.title.includes('2024');
+  };
+
   return (
     <div>
       {/* Page Header */}
@@ -88,19 +113,29 @@ const Gallery = () => {
         </div>
       </section>
 
-      {/* SSC Results Highlight */}
-      <section className="py-8 bg-gradient-to-r from-yellow-50 to-orange-50 border-b-4 border-yellow-400">
+      {/* SSC 2024 Special Highlight */}
+      <section className="py-12 bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-500 text-white">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4 flex items-center justify-center space-x-3">
-              <Trophy className="h-8 w-8 text-yellow-600" />
-              <span>SSC Board Results 2024 & 2025</span>
-              <Trophy className="h-8 w-8 text-yellow-600" />
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 flex items-center justify-center space-x-4 animate-bounce">
+              <Trophy className="h-12 w-12" />
+              <span>SSC 2024 - Historic Achievement!</span>
+              <Trophy className="h-12 w-12" />
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Celebrating our students' outstanding achievements in SSC examinations. 
-              View the complete results and success stories from our school.
-            </p>
+            <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 transform hover:scale-105 transition-all duration-300">
+                <div className="text-3xl font-bold mb-2">9.7 GPA</div>
+                <div className="text-lg">Highest Score Achieved</div>
+              </div>
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 transform hover:scale-105 transition-all duration-300">
+                <div className="text-3xl font-bold mb-2">91.6%</div>
+                <div className="text-lg">Overall Pass Rate</div>
+              </div>
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 transform hover:scale-105 transition-all duration-300">
+                <div className="text-3xl font-bold mb-2">58.3%</div>
+                <div className="text-lg">Students with 9+ GPA</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -161,15 +196,19 @@ const Gallery = () => {
                 <div
                   key={item.id}
                   className={`group relative bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2 ${
-                    isSSCResult(item) ? 'ring-2 ring-yellow-400 shadow-yellow-100' : ''
+                    isSSCResult(item) 
+                      ? isSSC2024(item)
+                        ? 'ring-4 ring-yellow-500 shadow-yellow-200 animate-pulse'
+                        : 'ring-2 ring-yellow-400 shadow-yellow-100'
+                      : ''
                   }`}
                   onClick={() => setSelectedImage(item)}
                 >
                   {isSSCResult(item) && (
                     <div className="absolute top-2 right-2 z-10">
-                      <div className="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
+                      <div className={`${isSSC2024(item) ? 'bg-gradient-to-r from-yellow-400 to-orange-500 animate-pulse' : 'bg-yellow-500'} text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1`}>
                         <Trophy className="h-3 w-3" />
-                        <span>SSC</span>
+                        <span>{isSSC2024(item) ? 'SSC 2024 ⭐' : 'SSC'}</span>
                       </div>
                     </div>
                   )}
@@ -188,7 +227,7 @@ const Gallery = () => {
                   
                   <div className="p-4">
                     <h3 className={`font-semibold text-gray-800 mb-2 line-clamp-2 ${
-                      isSSCResult(item) ? 'text-yellow-700' : ''
+                      isSSC2024(item) ? 'text-yellow-700 font-bold' : isSSCResult(item) ? 'text-yellow-600' : ''
                     }`}>
                       {item.title}
                     </h3>

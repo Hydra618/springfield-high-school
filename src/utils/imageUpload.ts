@@ -1,6 +1,26 @@
 
 const STORAGE_PREFIX = 'springfield_images_';
 
+// Pre-loaded SSC result images
+const SSC_RESULT_IMAGES = [
+  {
+    filename: 'ssc_2024_results.png',
+    path: '/lovable-uploads/87064bbb-2ca9-4368-a24b-e307ca5c5eb8.png',
+    title: 'SSC 2024 Board Results - Outstanding Achievement',
+    description: 'Celebrating our students\' exceptional performance in SSC 2024 with 9.7 GPA top scorers and 91.6% pass rate',
+    category: 'ssc-results',
+    event_date: '2024-05-15'
+  },
+  {
+    filename: 'ssc_2025_results.png', 
+    path: '/lovable-uploads/348111d4-ea13-461f-b87c-9235d7372d9b.png',
+    title: 'SSC 2025 Board Results - 100% Pass Rate Achievement',
+    description: 'Remarkable success with 100% pass rate in SSC 2025, featuring top scorers Annam Akshith (580) and Eravelli Indhu (569)',
+    category: 'ssc-results',
+    event_date: '2025-05-15'
+  }
+];
+
 export const handleLocalImageUpload = async (file: File): Promise<string> => {
   // Create a unique filename with timestamp
   const timestamp = Date.now();
@@ -48,6 +68,11 @@ export const getImageUrl = (imagePath: string): string => {
     return imagePath;
   }
   
+  // For lovable-uploads, return as is
+  if (imagePath.startsWith('/lovable-uploads/')) {
+    return imagePath;
+  }
+  
   // For local images, get from localStorage
   if (imagePath.startsWith('/images/')) {
     const filename = imagePath.split('/').pop();
@@ -64,9 +89,19 @@ export const getImageUrl = (imagePath: string): string => {
   return '/placeholder.svg';
 };
 
-// Utility to get all stored images
+// Get pre-loaded SSC results
+export const getSSCResultImages = () => {
+  return SSC_RESULT_IMAGES;
+};
+
+// Utility to get all stored images including SSC results
 export const getAllStoredImages = () => {
   const images = [];
+  
+  // Add pre-loaded SSC results first
+  images.push(...SSC_RESULT_IMAGES);
+  
+  // Add user uploaded images
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (key && key.startsWith(STORAGE_PREFIX) && !key.endsWith('_meta')) {
