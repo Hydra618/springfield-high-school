@@ -15,7 +15,7 @@ export interface GalleryItem {
   image_url: string;
   event_date: string;
   created_at: string;
-  category: 'events' | 'academics' | 'sports' | 'cultural';
+  category: 'events' | 'academics' | 'sports' | 'cultural' | 'ssc-results';
 }
 
 export interface ContactInquiry {

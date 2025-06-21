@@ -561,8 +561,9 @@ const GalleryTab = ({ galleryItems, onEdit, onDelete, onSave, editingItem, onCan
                 onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value as any }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
-                <option value="events">School Events</option>
+                <option value="ssc-results">🏆 SSC Board Results</option>
                 <option value="academics">Academic Activities</option>
+                <option value="events">School Events</option>
                 <option value="sports">Sports</option>
                 <option value="cultural">Cultural Programs</option>
               </select>
@@ -575,6 +576,7 @@ const GalleryTab = ({ galleryItems, onEdit, onDelete, onSave, editingItem, onCan
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Add details about the photo (especially for SSC results - mention year, achievements, etc.)"
               />
             </div>
             
@@ -592,6 +594,9 @@ const GalleryTab = ({ galleryItems, onEdit, onDelete, onSave, editingItem, onCan
                   <p className="text-sm text-gray-600">Selected: {selectedFile.name}</p>
                 </div>
               )}
+              <p className="text-xs text-gray-500 mt-1">
+                Upload high-quality images. For SSC results, ensure text is clearly readable.
+              </p>
             </div>
             
             <div className="flex space-x-3">
@@ -617,45 +622,57 @@ const GalleryTab = ({ galleryItems, onEdit, onDelete, onSave, editingItem, onCan
 
       {/* Gallery Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {galleryItems.map((item: GalleryItem) => (
-          <div key={item.id} className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="aspect-square overflow-hidden">
-              <img
-                src={getImageUrl(item.image_url)}
-                alt={item.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = '/placeholder.svg';
-                }}
-              />
-            </div>
-            <div className="p-4">
-              <h4 className="font-medium text-gray-900 mb-1">{item.title}</h4>
-              <p className="text-sm text-gray-600 mb-2">{item.description}</p>
-              <div className="flex justify-between items-center">
-                <div className="text-xs text-gray-500">
-                  <p>{new Date(item.event_date).toLocaleDateString()}</p>
-                  <p className="capitalize">{item.category}</p>
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => onEdit(item)}
-                    className="text-blue-600 hover:text-blue-800 p-1"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => onDelete(item.id)}
-                    className="text-red-600 hover:text-red-800 p-1"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+        {galleryItems.map((item: GalleryItem) => {
+          const isSSC = item.category === 'ssc-results' || item.title.toLowerCase().includes('ssc');
+          return (
+            <div key={item.id} className={`bg-white rounded-lg shadow overflow-hidden ${
+              isSSC ? 'ring-2 ring-yellow-400' : ''
+            }`}>
+              <div className="aspect-square overflow-hidden relative">
+                {isSSC && (
+                  <div className="absolute top-2 right-2 z-10 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                    SSC
+                  </div>
+                )}
+                <img
+                  src={getImageUrl(item.image_url)}
+                  alt={item.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/placeholder.svg';
+                  }}
+                />
+              </div>
+              <div className="p-4">
+                <h4 className={`font-medium text-gray-900 mb-1 ${isSSC ? 'text-yellow-700' : ''}`}>
+                  {item.title}
+                </h4>
+                <p className="text-sm text-gray-600 mb-2">{item.description}</p>
+                <div className="flex justify-between items-center">
+                  <div className="text-xs text-gray-500">
+                    <p>{new Date(item.event_date).toLocaleDateString()}</p>
+                    <p className="capitalize">{item.category.replace('-', ' ')}</p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => onEdit(item)}
+                      className="text-blue-600 hover:text-blue-800 p-1"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => onDelete(item.id)}
+                      className="text-red-600 hover:text-red-800 p-1"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
